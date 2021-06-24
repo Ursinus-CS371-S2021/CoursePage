@@ -1,0 +1,112 @@
+https://www.cs.princeton.edu/courses/archive/spring20/cos226/assignments.php
+
+Still missing:
+* Erin chat, CS ethics
+
+
+
+Part 1: Introduction To Python, Abtract Data Types, And Empirical Complexity
+
+Topics:
+* Python/numpy basics
+* Unit tests
+* Union find
+* timeit
+
+
+Assignment: Plant cell segmentation with union find, and plotting union find complexity
+
+
+----------------------------------------
+Part 2: Introduction To Analytical Time Complexity via Searching And Sorting
+
+We have a bunch of objects, and we want to find them quickly
+Operations: Find, Add/Remove First, Add/Remove Last, Add/Remove Middle
+* Unsorted Array
+* Sorted Array with Binary Search
+https://ai.googleblog.com/2006/06/extra-extra-read-all-about-it-nearly.html
+* Linked lists
+* Doubly-linked lists
+* Hash tables
+
+
+Topics:
+* Big-O/Big Theta/Little Theta
+
+
+Class Exercise:
+* Come up with hash functions for strings
+
+Assignment: Autocomplete with binary search
+https://www.cs.princeton.edu/courses/archive/spring20/cos226/assignments/autocomplete/specification.php
+
+
+
+------------------------------------------
+Part 3: Recursion And Dynamic Programming
+* Insertion sort
+* Basics of recursion: factorial, fibonacci
+* Recursive drawing
+* Towers of hanoi
+* String edit distance
+* Stacks/queues and de-recursifying
+
+Class Exercises:
+* Do similar recursive exercises, including ackermann
+* Implement a stack with a queue
+
+
+Assignment: Dynamic Time Warping for Audio Alignment
+
+------------------------------------------
+Part 4: Sorting, Selection, And Shuffling
+* Merge sort
+* Quick sort
+* Bitonic sort
+* Selection algorithms
+* Fishery-yates shuffling
+
+Class exercises:
+* Write code to check to see if a list is sorted
+* Come up with own algorithms to sort [look to see how others have done this]
+* Check shuffling implementation to see if it's random
+
+
+Assignment: Local kemenization for 3D shape or cover song identification
+
+
+------------------------------------------
+
+
+Part 5: Tree Data Structures And Algorithms
+* Binary tree traversal
+* Binary search trees: search/addition/removal
+* Tree rotations, balanced binary search trees
+* Tries
+* Binary heaps / priority queues
+
+Creating phylogenetic trees with needelman-wunsch and single-linkage clustering
+https://bostjan-cigan.medium.com/using-the-needleman-wunsch-algorithm-to-draw-evolutionary-trees-90d9db149413
+
+
+Class Exercises:
+* Re-implement autocomplete by querying a trie
+
+
+
+------------------------------------------
+Part 6: Graph Data Structures And Algorithms
+* Graph data structures
+* Breadth-First Search, Depth-First Search
+* Dijkstra's algorithm
+* A* search
+* MST's / Prim's algorithm
+* Topological sort
+* Graph cuts
+https://www.quora.com/What-are-some-real-world-applications-of-min-cut-in-graph-theory
+* Bron-Kerbosch
+
+
+Assignment: Karger Stein Algorithm for image object segmentation
+OR
+A* Search rush hour problem
