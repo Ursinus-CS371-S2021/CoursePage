@@ -46,3 +46,18 @@
 [submodule "ClassExercises/Week10/Week10_TreeDrawing/Week10_TreeDrawing"]
 	path = ClassExercises/Week10/Week10_TreeDrawing/Week10_TreeDrawing
 	url = https://github.com/Ursinus-CS371-S2021/Week10_TreeDrawing.git
+[submodule "ClassExercises/Week11/Week11_BSTComplexity/Week11_BSTComplexity"]
+	path = ClassExercises/Week11/Week11_BSTComplexity/Week11_BSTComplexity
+	url = https://github.com/Ursinus-CS371-S2021/Week11_BSTComplexity.git
+[submodule "ClassExercises/Week12/Week12_Huffman/Week12_Huffman"]
+	path = ClassExercises/Week12/Week12_Huffman/Week12_Huffman
+	url = https://github.com/Ursinus-CS371-S2021/Week12_Huffman.git
+[submodule "ClassExercises/Week13/Week13_Kruskal/Week13_Kruskal"]
+	path = ClassExercises/Week13/Week13_Kruskal/Week13_Kruskal
+	url = https://github.com/Ursinus-CS371-S2021/Week13_Kruskal.git
+[submodule "ClassExercises/Week14/Week14_BFSDFS/Week14_BFSDFS"]
+	path = ClassExercises/Week14/Week14_BFSDFS/Week14_BFSDFS
+	url = https://github.com/Ursinus-CS371-S2021/Week14_BFSDFS.git
+[submodule "ClassExercises/Week15/Week15_BFFW/Week15_BFFW"]
+	path = ClassExercises/Week15/Week15_BFFW/Week15_BFFW
+	url = https://github.com/Ursinus-CS371-S2021/Week15_BFFW.git
