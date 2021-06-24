@@ -31,3 +31,9 @@
 [submodule "ClassExercises/Week5/Week5_TowersOfHanoi/Week5_TowersOfHanoi"]
 	path = ClassExercises/Week5/Week5_TowersOfHanoi/Week5_TowersOfHanoi
 	url = https://github.com/Ursinus-CS371-S2021/Week5_TowersOfHanoi.git
+[submodule "ClassExercises/Week6/Week6_EditBacktracing/Week6_EditBacktracing"]
+	path = ClassExercises/Week6/Week6_EditBacktracing/Week6_EditBacktracing
+	url = https://github.com/Ursinus-CS371-S2021/Week6_EditBacktracing.git
+[submodule "ClassExercises/Week6/Week6_SeamCarving/Week6_SeamCarving"]
+	path = ClassExercises/Week6/Week6_SeamCarving/Week6_SeamCarving
+	url = https://github.com/Ursinus-CS371-S2021/Week6_SeamCarving.git

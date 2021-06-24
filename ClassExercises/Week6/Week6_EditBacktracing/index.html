@@ -1,0 +1,286 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<!-- Header !-->
+	<head>
+		<title>Ursinus CS 371: Data Structures And Algorithms, Spring 2021</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<!--[if lte IE 8]><script src="../../../assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="../../../assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="../../../assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="../../../assets/css/ie8.css" /><![endif]-->
+        <style>
+        .image_off, #home:hover .image_on{
+           display:none
+        }
+        .image_on, #home:hover .image_off{
+           display:block
+        }
+        </style>
+	</head>
+	<body>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../../index.html" class="logo"><strong>Ursinus CS 371: Data Structures And Algorithms, Spring 2021</strong></a>
+								</header>
+<!-- End Header !-->
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h2>Week 6: Edit Distance Backtracing</h2>
+										<h3><a href = "http://www.ctralie.com">Chris Tralie</a></h3>
+									</header>
+
+									<div id="page-content">
+									
+
+                                        <h2>Overview / Logistics</h2>
+										<p>
+											We talked about an iterative dynamic programming solution for the string edit distance in <a href = "https://ursinus-cs371-s2021.github.io/Modules/Module10/Video4">Module 10</a>.  The method we came up with was able to compute the optimal distance by filling in a table of costs of matching all pairs of substrings, and we were able to lookup the cost as the lower right element in this table, which corresponded to the cost between full strings.  The table below shows an example for "school" versus "fools," where the optimal cost is 4
+										</p>
+
+										<p>
+											<img src = "school_fools.svg">
+										</p>
+
+										<p>
+											What this does not tell us is what operations were needed to get this answer.  For this, we need another data structure to store what the optimal actions were at each step.  The image below shows arrows drawing decisions that were optimal for every substring
+										</p>
+
+										<p>
+											<img src = "school_fools_arrows.svg">
+										</p>
+
+										<p>
+											To extract an optimal way to match, you must <b>backtrace</b> from the lower right element; that is, start at the lower right element and follow arrows until you get to [0, 0].  The red arrows show all of the decisions that are along a path that starts from [M, N] and ends up at [0, 0].  For example, one such path is 
+										</p>
+
+										<code>
+											[[6, 5], [6, 4], [5, 3], [4, 2], [3, 1], [2, 1], [1, 1], [0, 0]]
+										</code>
+
+										<p>
+											The image below shows this path circled in blue 
+										</p>
+
+										<p>
+											<img src = "school_fools_path1.svg">
+										</p>
+
+										<p>
+											If we walk this path in the backwards direction from how we discovered it, we can translate this to the following operations to transform "school" into "fools":
+											<pre>
+Swap in an f for the s
+Delete c
+Delete h
+Match o and o
+Match o and o
+Match l and l
+Add s
+												
+											</pre>
+										</p>
+
+										<p>
+											This sequence has a total cost of 4 (1 swap, 2 deletes, and 1 add).  But this is not the only path we could find!  Consider the following path:
+										</p>
+
+										<code>
+											[[6, 5], [6, 4], [5, 3], [4, 2], [3, 1], [2, 0], [1, 0], [0, 0]]
+										</code>
+
+										<p>
+											This is shown below
+										</p>
+
+										<img src = "school_fools_path2.svg">
+
+										<p>
+											This would translate into the following sequence
+										</p>
+
+										<pre>
+Delete s
+Delete c
+Swap in an f for the h
+Match o and o
+Match o and o
+Match l and l
+Add s					
+										</pre>
+
+										<p>
+											Interestingly, this also has a cost of 4, but it's a different way of getting that answer! (2 deletes, 1 swap, one add).  And there is actually one more way (see if you can find it)
+										</p>
+
+										<h2>Programming Tasks</h2>
+										<p>
+											<a href = "https://github.com/Ursinus-CS371-S2021/Week6_EditBacktracing/archive/main.zip">Click here</a> to download the starter code.
+										</p>
+
+										<h3>Task 1: Backtrace breaking ties</h3>
+										<p>
+											Your first task is to backtrace by breaking ties in the optimal moves.  The code already does this for you by choosing the left arrow if all else is equal, followed by the up arrow, followed by the diagonal arrow.  The table <code>moves</code> stores a 1 if the left arrow (cost1) was the optimal at that cell, a 2 if the the up arrow (cost2) was optimal at that cell, and a 3 if the diagonal arrow (cost3) was optimal at that cell.  You should create a loop to follow these arrows back from [M, N] to [0, 0]
+										</p>
+
+										<h3>Task 2: Backtracing all paths</h3>
+										<p>
+											If there are ties, it might also be interesting to know <b>all possible paths</b> from the lower right to the upper left of the table.  So we don't just want to break ties, but to store all of the arrows.  Write code to extract all paths this way.  The easiest way to do this is using recursion.  Every time you branch off, you need to make a new list.
+										</p>
+
+
+                                    </div>
+						</div>
+					</div>
+
+					<!--LaTeX in Javascript!-->
+					<script src="../../../../../jsMath/easy/load.js"></script>
+					<!--Syntax highlighting in Javascript!-->
+					<script type="text/javascript" src="../../../../../syntaxhighlighter/scripts/shCore.js"></script>
+					<script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shBrushJScript.js"></script>
+					<script type="text/javascript" src="../../../../../syntaxhighlighter/scripts/shBrushCpp.js"></script>
+					<script type="text/javascript" src="../../../../../syntaxhighlighter/scripts/shBrushMatlabSimple.js"></script>
+					<script type="text/javascript" src="../../../../../syntaxhighlighter/scripts/shBrushPython.js"></script>
+					<link type="text/css" rel="stylesheet" href="../../../../../syntaxhighlighter/styles/shCoreDefault.css"/>
+					<script type="text/javascript">SyntaxHighlighter.all();</script>
+
+<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+                                        <li>
+											<span class="opener">General</span>
+											<ul> 
+												<li><a href = "../../../index.html#overview">Overview</a></li>
+												<li><a href = "../../../index.html#logistics">Technology Logistics</a></li>
+												<li><a href = "../../../index.html#deliverables">Deliverables</a></li>
+												<li><a href = "../../../index.html#grading">Grading</a></li>
+												<li><a href = "../../../index.html#environment">Classroom Environment</a></li>
+												<li><a href = "../../../index.html#participation">Participation</a></li>
+												<li><a href = "../../../index.html#collaboration">Collaboration Policy</a></li>
+												<li><a href = "../../../index.html#other">Other Resources / Policies</a></li>
+											</ul>
+										</li>
+										<li><a href = "../../../Software/index.html">Software</a></li>
+										<li><a href = "../../../Schedule/index.html">Schedule</a></li>
+                                        <li>
+											<span class="opener">Assignments</span>
+											<ul>
+												<li><a href = "../../../Assignments/HW1_PlantCellSegmentation">HW1: Union Find And Plant Cell Segmentation</a></li>
+												<li><a href = "../../../Assignments/HW2_Autocomplete">HW2: Complexity Proofs And Autocomplete</a></li>
+												<li><a href = "../../../Assignments/HW3_DTW_AudioAlignment">HW3: Audio Alignment with Dynamic Time Warping</a></li>
+												<li><a href = "../../../Assignments/HW4_FairElections">HW4: Fair Elections of Superheros</a></li>
+												<li><a href = "../../../Assignments/HW5_PhylogeneticTrees">HW5: Phylogenetic Trees</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/HW6/Exercise0">HW6: The Rush Hour Game</a></li>
+											</ul>
+										</li>
+                                        <li>
+											<span class="opener">Pre-Class Modules</span>
+											<ul>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module0/Part1">Module 0: Warmup</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module1/Video1">Module 1: Python Basics</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module2/Video1">Module 2: Numpy, Matplotlib, Python Classes</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module3/Video1.html">Module 3: Disjoint Set Data Structures</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module4/Video1.html">Module 4: Analytical Time Complexity And Big O</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module5/Video0.html">Module 5: Little-o And Python Linked Lists</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module6/Video1">Module 6: The List Data Structure And Amortized Cost</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module7/Video1">Module 7: Amortized Cost Proof, Binary Search</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module8/Exercise0">Module 8: Binary Search Implementation, Sets/Maps</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module9/Exercise0">Module 9: Sierpinski Triangle, Stacks/Queues Review, Towers of Hanoi</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module10/Video0">Module 10: Proofs by Induction, Memoization, String Edit Distance</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module11/Video0">Module 11: String Edit Distance Backtracing Solutions, Making Change</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module12/Exercise0">Module 12: Seam Carving</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module13/Video1">Module 13: Longest Common Subsequence</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module14/Video1">Module 14: Intro To Sorting</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module15/Video0">Module 15: Recursive Sorts And Sorting Theory</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module16/Video1">Module 16: Radix Sort, Fisher-Yates Shuffling</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module17/Video1">Module 17: Intro To Binary Trees, Preorder/Inorder/Postorder</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module18/Video1">Module 18: Binary Search Trees: Contains/Addition/Removal</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module19/Video1">Module 19: Huffman Trees</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module20/Video1">Module 20: Heaps And Dijkstra's</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module21/Video1.html">Module 21: Minimum Spanning Trees</a></li>
+											</ul>
+										</li>
+                                        <li>
+											<span class="opener">Class Exercises</span>
+											<ul>
+												<li><a href = "../../../ClassExercises/Week1/rushhour/">Week 1: Rush Hour Icebreaker</a></li>
+												<li><a href = "../../../ClassExercises/Week2/Week2_UnionFind/">Week 2: Union Find</a></li>
+												<li><a href = "../../../ClassExercises/Week3/Week3_BigO/">Week 3: Big O Practice</a></li>
+												<li><a href = "../../../ClassExercises/Week3/Week3_LinkedLists/">Week 3: Linked Lists</a></li>
+												<li><a href = "../../../ClassExercises/Week3/Week3_DoublyLinkedLists/">Week 3: Doubly-Linked Lists</a></li>
+												<li><a href = "../../../ClassExercises/Week4/Week4_HashingExperiments/">Week 4: Hashing Experiments</a></li>
+												<li><a href = "../../../ClassExercises/Week4/Week4_MovieReviews/">Week 4: Movie Reviews</a></li>
+												<li><a href = "../../../ClassExercises/Week5/Week5_RecursiveEvaluation/">Week 5: Recursive Evaluation</a></li>
+												<li><a href = "../../../ClassExercises/Week5/Week5_RecursiveDrawing/">Week 5: Recursive Drawing</a></li>
+												<li><a href = "../../../ClassExercises/Week5/Week5_TowersOfHanoi/">Week 5: Towers of Hanoi</a></li>
+												<li><a href = "../../../ClassExercises/Week6/Week6_EditBacktracing">Week 6: Edit Distance Backtracing</a></li>
+												<li><a href = "../../../ClassExercises/Week6/Week6_SeamCarving">Week 6: Seam Carving</a></li>
+												<li><a href = "../../../ClassExercises/Week8/Week8_LCS">Week 8: Longest Common Subsequence</a></li>
+												<li><a href = "../../../ClassExercises/Week8/Week8_Sorting">Week 8: Sorting</a></li>
+												<li><a href = "../../../ClassExercises/Week9/Week9_RecursiveSorts">Week 9: Recursive Sorts</a></li>
+												<li><a href = "../../../ClassExercises/Week9/Week9_RadixSort">Week 9: Radix Sort</a></li>
+												<li><a href = "../../../ClassExercises/Week10/Week10_TreeDrawing">Week 10: Tree Drawing</a></li>
+												<li><a href = "../../../ClassExercises/Week11/Week11_BSTComplexity">Week 11: Tree Balancing via Rotations</a></li>
+											</ul>
+										</li>
+										<li>
+											<span class="opener">Final Assessment</span>
+											<ul>
+												<li><a href = "../../../final.html#codinginterview">Mock Coding Interview</a></li>
+												<li><a href = "../../../final.html#multimediaexpo">Geometric Algorithm Multimedia Expo</a></li>
+											</ul>
+										</li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<div class="mini-posts">
+										Announcements							
+                                    </div>
+								</section>
+
+
+							<!-- Footer -->
+								<footer id="footer">
+									<p class="copyright">&copy; <a href = "http://www.ctralie.com">Christopher J. Tralie</a>. All rights reserved.  Contact chris.tralie@gmail.com. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+			
+            <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+            <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<!-- End Sidebar !-->
+
+<!-- Scripts -->
+			<script src="../../../assets/js/jquery.min.js"></script>
+			<script src="../../../assets/js/skel.min.js"></script>
+			<script src="../../../assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="../../../assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="../../../assets/js/main.js"></script>
+<!-- End Scripts -->
+	</body>
+</html>
