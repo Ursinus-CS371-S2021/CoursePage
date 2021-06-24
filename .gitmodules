@@ -4,3 +4,6 @@
 [submodule "Assignments/HW2_Autocomplete/HW2_Autocomplete"]
 	path = Assignments/HW2_Autocomplete/HW2_Autocomplete
 	url = https://github.com/Ursinus-CS371-S2021/HW2_Autocomplete.git
+[submodule "Assignments/HW3_DTW_AudioAlignment/HW3_DTW_AudioAlignment"]
+	path = Assignments/HW3_DTW_AudioAlignment/HW3_DTW_AudioAlignment
+	url = https://github.com/Ursinus-CS371-S2021/HW3_DTW_AudioAlignment.git

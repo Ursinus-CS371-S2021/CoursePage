@@ -1,0 +1,1023 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<!-- Header !-->
+	<head>
+		<title>Ursinus CS 371: Data Structures And Algorithms, Spring 2021</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<!--[if lte IE 8]><script src="../../assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="../../assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="../../assets/css/ie8.css" /><![endif]-->
+        <style>
+        .image_off, #home:hover .image_on{
+           display:none
+        }
+        .image_on, #home:hover .image_off{
+           display:block
+        }
+        </style>
+	</head>
+	<body>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>Ursinus CS 371: Data Structures And Algorithms, Spring 2021</strong></a>
+								</header>
+<!-- End Header !-->
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+                                        <h2>Assignment 3: Audio Alignment with Dynamic Time Warping (45 Points)</h2>
+                                        <h3><a href = "http://www.ctralie.com">Chris Tralie</a>
+										<h3>Due Monday 3/22/2021</h3>
+										<h3></h3>
+									</header>
+
+									<div id="page-content">
+										<ul>
+											<li>
+												<a href = "#overview">Overview/Logistics</a>
+												<ul>
+													<li><a href = "#learning">Learning Objectives</a></li>
+													<li><a href = "#submit">What To Submit</a></li>
+												</ul>
+											</li>
+											<li>
+												<a href = "#dtwbg">Background: Dynamic Time Warping</a>
+												<ul>
+													<li><a href = "#warppath">Warping Paths</a></li>
+													<li><a href = "#delannoy">Counting Warping Paths with Delannoy Numbers</a></li>
+													<li><a href = "#dynprogsol">Dynamic Programming Solution</a></li>
+													<li><a href = "#audioalignment">Audio Alignment</a></li>
+												</ul>
+											</li>
+											<li><a href = "#drawing">Programming Task 1: Drawing All Possible Warping Paths (10 Points)</a></li>
+											<li><a href = "#dtwprogramming">Programming Task 2: Dynamic Time Warping (15 Points)</a></li>
+											<li><a href = "#fastdtw">Programming Task 3: FastDTW (20 Points Total)</a>
+											<ul>
+												<li><a href = "#bgfastdtw">Overview</a></li>
+												<li><a href = "#algfastdtw">Recursive Algorithm Specification</a></li>
+												<li><a href = "#occupancy">Programming Task: Construct Occupancy Mask (5 Points)</a></li>
+												<li><a href = "#fastdtwimp">Programming Task: Implement Recursive Algorithm (15 Points)</a></li>
+											</ul>
+											</li>
+										</ul>
+
+                                        <h2><a name = "overview">Overview / Logistics</a></h2>
+										<p>
+											The purpose of this assignment is to give you practice implementing dynamic programming techniques in python in the service of a cool application: alignment/synchronization of audio.
+										
+										</p>
+
+										<p>
+											<a href = "https://github.com/Ursinus-CS371-S2021/HW3_DTW_AudioAlignment/archive/main.zip">Click here</a> to download the starter code for this assignment.  You will be editing <code>dtw.py</code>
+										</p>
+
+										<p>
+											To handle audio, you will need to setup a library called <a href = "https://librosa.org/">librosa</a>.  To install this, either go to your anaconda prompt and type 
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											pip install librosa]]></script> 
+
+										<p>
+											or go into the interactive console in spyder and type
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											import subprocess
+											subprocess.call(["pip", "install", "librosa"])]]></script> 
+
+										<p>
+											If this worked properly, when you run the following code:
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											import numpy as np
+											import matplotlib.pyplot as plt
+											import librosa
+											import librosa.display
+											y, sr = librosa.load("gettysburg1.wav")
+											D = librosa.stft(y)
+											S_db = librosa.amplitude_to_db(np.abs(D), ref=np.max)
+											plt.figure()
+											librosa.display.specshow(S_db, x_axis='time', y_axis='linear')
+											plt.colorbar()
+											plt.show()]]></script> 
+
+										<p>
+											You should see this image
+										</p>
+
+										<img src = "GettysburgSTFT.svg" width=800>
+										
+										
+
+                                        <p>
+                                            <h3><a name = "learning">Learning Objectives</a></h3>
+                                            <ul>
+												<li>
+													Implement an exact and an approximate version of the same algorithm.
+												</li>
+												<li>
+													Implement a dynamic programming algorithm with backtracing to extract an optimal solution.
+												</li>
+												<li>
+													Use recursion to enumerate paths on a branching structure.
+												</li>
+												<li>
+													Use recursion to implement a multiresolution algorithm.
+												</li>
+												<li>
+													Use sparse matrices to implement memory efficient 2D arrays, leading to a linear memory algorithm
+												</li>
+                                            </ul>
+                                        </p>
+
+										<h3><a name = "submit">What To Submit</a></h3>
+
+										<p>                                  
+											Please submit your file <code>dtw.py</code> to canvas.  Please also submit answers to the following questions on Canvas
+										
+										<ol>
+											<li>
+												The name of your <a href = "../../index.html#buddy">buddy</a>, if you chose to work with one.
+											</li>
+											<li>
+												Approximately how many hours it took you to finish this assignment (<i>I will not judge you for this at all...I am simply using it to gauge if the assignments are too easy or hard</i>)
+											</li>
+											<li>
+												Any suggestions if I run this assignment again?
+											</li>
+											<li>
+												Any other concerns that you have. For instance, if you have a bug that you were unable to solve but you made progress, write that here. The more you articulate the problem the more partial credit you will receive (fine to leave this blank)
+											</li>
+										</ol>
+
+                                        
+										<h2><a name = "dtwbg">Background: Dynamic Time Warping</a></h2>
+										<p>
+											The problem we're going to address in this assignment is one of <i>spatial time series alignment</i>.  Let's start with an an example to motivate this.  Suppose I'm running a 30 meter race against <a href = "http://usainbolt.com/">Usain Bolt</a>.  I'm definitely going to lose by a lot!  But maybe later it would be interesting to line up our videos to show us side by side at different places on the track to compare our form at those locations.  Which frames of the videos should we show side by side to best line us up on the track?  Let's look at the frames we captured below.  We'll line up the frames next to 2D coordinates for our positions over time, which we can think of as a "2D spatial time series," or the positions of the frames that were captured over time.  The orange path shows my trajectory, and the blue path shows Usain Bolt's trajectory.  (NOTE: This is not at all realistic, but just as an example for the sake of argument.  For an actual analysis of Usain Bolt's record setting 100m race, refer to a <a href = "http://www.ctralie.com/Teaching/MATH111_F2019/Labs/Lab2/sage2.html">lab I made for math 111</a>)
+										</p>
+
+										<p>
+											<img src = "WarppathExample/TimeSeries.svg" width=600>
+										</p>
+
+										<p>
+											As you can see, it takes me three video frames frames (indices 0-2) to run nearly as far as Usain Bolt ran in the interval between his first two frames (indices 0-1), even as Usain Bolt veers slightly out of his lane and runs along a diagonal.  Then, Usain Bolt looks back and realizes he can win without even trying, so he slows down and doesn't move as far between his last two frames as he runs straight to the end.  Meanwhile, I also slow down after frame two from pure exhaustion and move a bit slower.  Eventually, we both make it to the end.
+										</p>
+
+
+										<h3><a name = "warppath">Warping Paths</a></h3>
+
+										<p>
+											To figure out how to line up the frames, we define something called a <b>warping path</b>.  A warping path is a sequence of pairs of indices between the two time series, where each pair indicates two points that should be aligned between the time series.  A warping path satisfies the following rules for a time series of length <b>M</b> aligned to a time series of length <b>N</b>:
+											<ul>
+												<li>
+													The first frames are aligned; that is, <code>[0, 0]</code> is in the warping path.  Likewise, the last frames are aligned; that is, <code>[M-1, N-1]</code> is in the warping path.  These are known as the <b>boundary conditions</b>.
+												</li>
+												<li>
+													We can only stay in place or move forward along each time series from one pair to the next in the warping path; we never move backwards.  This is known as the <b>monotonicity condition</b>.  Furthermore, we can move at most one step in each time series from one pair to the next, but at least one time series has to move.  This is known as the <b>continuity condition</b>  Taken together, these two conditions mean that for a pair <code>[i, j]</code>, the next pair can be one of the three options:
+													<ul>
+														<li>
+															<code>[i+1, j]</code>: The first time series moves forward one step, while the second one stays still.
+														</li>
+														<li>
+															<code>[i, j+1]</code>: The second time series moves forward one step, while the first one stays still.
+														</li>
+														<li>
+															<code>[i+1, j+1]</code>: Both time series move forward by one step.
+														</li>
+													</ul>
+												</li>
+											</ul>
+										</p>
+
+										<p>
+											To figure out which warping path best aligns the time series, we'll define a score associated to each path, which is the sum of the lengths of straight line segments between each pair of aligned points.  For example, letting Usain's time series be the first time series and mine be the second one, we could consider the following warping path 
+										</p>
+
+										<p>
+											<code>[[0, 0], [1, 0], [2, 0], [3, 0], [3, 1], [3, 2], [3, 3], [3, 4]]</code>
+										</p>
+
+										<p>
+											<img src = "WarppathExample/Path0.svg" width=900>
+										</p>
+
+										<p>
+											We then compute and sum up all of the distances between corresponding pairs.  For instance, for <code>[2, 0]</code>, the distance between point 2 on Usain's path and point 0 on my path is 25.3.  The total cost in this example is approximately 130, but we can definitely do better.  For instance, consider the following warping path
+										</p>
+
+										<p>
+											<code>[[0, 0], [1, 1], [1, 2], [2, 3], [3, 4]]</code>
+										</p>
+
+										<p>
+											<img src = "WarppathExample/Path123.svg" width=900>
+										</p>
+
+										<p>
+											This starts and ends at the same place, but it takes different steps in between that lead to fewer and shorter segments.  The overall cost is around 27, which is much lower than our original try!  But is this the best we can do?  The animation below shows all possible warping paths and their associated costs:
+										</p>
+
+										<p>
+											<img src = "WarppathExample/Animation.gif" width=900>
+										</p>
+
+										<p>
+											In fact, we see that the following warping path is the best over all possible warping paths in this example that achieves a lower cost of 19.8
+										</p>
+
+										<p>
+											<code>[[0, 0], [0, 1], [1, 2], [2, 3], [3, 4]]</code>
+										</p>
+
+										<p>
+											<img src = "WarppathExample/Path103.svg" width=900>
+										</p>
+
+										<p>
+											This intuitively captures the notion that Usain Bolt went the same distance as my first 3 frames over only his first 2 frames, and then we did about the same thing for the rest of it.
+
+										<h3><a name = "delannoy">Counting Warping Paths with Delannoy Numbers</a></h3>
+										<p>
+											<p>
+												Now that we have a way to quantify what a good correspondence is between time series via warping paths and their costs, we need to devise an algorithm to compute them efficiently.  A brute force algorithm would check every single warping path and return the one with the lowest cost.  To see how efficient this is, we need to know how many warping paths to check.  In fact, there's a known sequence of numbers, the <a href = "https://mathworld.wolfram.com/DelannoyNumber.html">Delannoy numbers</a>, that count the number of possible warping paths based on the size of two time series (this also happens to be the number of possible edit sequences in the edit distance).  In particular, given a time series of length <b>M</b> and a time series of length <b>N</b>, the Delannoy number <b>D(M, N)</b> is defined with the following recurrence relation:
+											</p>
+	
+											<h3>
+												\[ D(M, N) = \left \{  \begin{array}{cc} 1 & M = 1, N = 1 \\  D(M, N-1) + D(M-1, N) + D(M-1, N-1)  & \text{otherwise}  \end{array} \right \} \]
+											</h3>
+	
+											<p>
+												The base case is (M = 1 or N = 1) is aligning a time series with a single point to another time series, and the only way to do this is by matching that point to every point in the time series, so there is only one possible warping path.  The rest of the recurrence comes from the boundary and monotonicity conditions of warping paths.  To compute the number of paths, it's possible to simply translate the recurrence over to recursive calls
+											</p>
+	
+											<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+												def delannoy(M, N):
+													if M == 1 or N == 1:
+														return 1
+													return delannoy(M-1, N) + delannoy(M, N-1) + delannoy(M-1, N-1)]]></script> 
+											
+											<p>
+												But we know that there's a more efficient way to evaluate recurrence relations such as these by using <a href = "https://ursinus-cs371-s2021.github.io/Modules/Module10/Video2">memoization</a>, where we fill in an entire dynamic programming table as follows
+												<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+													def delannoy(NMax):
+														D = np.ones((M, N), dtype=int)
+														for i in range(1, M):
+															for j in range(1, N):
+																D[i, j] = D[i-1, j] + D[i, j-1] + D[i-1, j-1]
+														return D[-1, -1] ]]></script> 
+	
+											</p>
+											
+											<p>
+												Below is an example of some of these numbers
+											</p>
+	
+											<table>
+												<tr><td></td><td>N = 1</td><td>N = 2</td><td>N = 3</td><td>N = 4</td><td>N = 5</td><td>N = 6</td><td>N = 7</td><td>N = 8</td></tr>
+												<tr><td>M = 1</td>
+												<td><b>1</b></td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+												<tr><td>M = 2</td>
+												<td>1</td><td><b>3</b></td><td>5</td><td>7</td><td>9</td><td>11</td><td>13</td><td>15</td></tr>
+												<tr><td>M = 3</td>
+												<td>1</td><td>5</td><td><b>13</b></td><td>25</td><td>41</td><td>61</td><td>85</td><td>113</td></tr>
+												<tr><td>M = 4</td>
+												<td>1</td><td>7</td><td>25</td><td><b>63</b></td><td>129</td><td>231</td><td>377</td><td>575</td></tr>
+												<tr><td>M = 5</td>
+												<td>1</td><td>9</td><td>41</td><td>129</td><td><b>321</b></td><td>681</td><td>1289</td><td>2241</td></tr>
+												<tr><td>M = 6</td>
+												<td>1</td><td>11</td><td>61</td><td>231</td><td>681</td><td><b>1683</b></td><td>3653</td><td>7183</td></tr>
+												<tr><td>M = 7</td>
+												<td>1</td><td>13</td><td>85</td><td>377</td><td>1289</td><td>3653</td><td><b>8989</b></td><td>19825</td></tr>
+												<tr><td>M = 8</td>
+												<td>1</td><td>15</td><td>113</td><td>575</td><td>2241</td><td>7183</td><td>19825</td><td><b>48639</b></td></tr>
+												</table>
+	
+											<p>
+												The bolded numbers, in which <b>N = M</b>, are referred to as <b>central Delannoy numbers</b>, and we can study them to see how the warping paths scale in one parameter.  As shown in <a href = "https://www.mathstat.dal.ca/~rnoble/papers/weighteddelannoy5.pdf">this paper</a>, the central Delannoy numbers <b>D(N, N)</b> are
+											</p>
+	
+											<h3>
+												\[ O \left( \frac{ (3 + 2 \sqrt{2})^{N}}{\sqrt{N}} \right) \]
+											</h3>
+	
+											<p>
+												which is not quite exponential due to the square root of N in the denominator, but the scaling is still terrible for all practical purposes.  So checking all possible warping paths is a dead end idea for an efficient algorithm.
+											</p>
+
+										<h3><a name = "dynprogsol">Dynamic Programming Solution</a></h3>
+										<p>
+											To solve this efficiently, we're going to follow a dynamic programming strategy extremely similar to <a href = "https://ursinus-cs371-s2021.github.io/Modules/Module10/Video4">the one we used to solve string edit distance</a>.  This means that we have to break down our problem into smaller problems and combine their solutions incrementally to build up to the full problem.  Let's say we have a time series <b>X</b> with <b>M</b> that we want to align to a time series <b>Y</b> with <b>N</b> samples, and that we're able to compute the distance between a point <b>x<SUB>i</SUB></b> in <b>X</b> and a point <b>y<SUB>j</SUB></b> in <b>Y</b> as <b>d<SUB>i, j</SUB></b>.  Furthermore, <u>let the optimal cost to align the first <b>i</b> samples of <b>X</b> to the first <b>j</b> samples of <b>Y</b> be expressed as <b>S[i, j]</b>; that is <b>S[i, j]</b> holds the sum of the distances of all segments in an optimal warping path from <code>[0, 0]</code> to <code>[i, j]</code>.</u>  Then, we can make the dynamic programming observation:
+										</p>
+										<h3>
+											\[ S[i, j] = \min \left\{  \begin{array}{c} S[i-1, j] \\ S[i, j-1] \\ S[i-1, j-1] \end{array}  \right\} + d_{i, j} \]
+										</h3>
+										<p>
+											In other words, take the min of the upper, left, and upper left neighbhors in <code>S</code>, then add the distance from <b>X<SUB>i</SUB></b> to <b>Y<SUB>j</SUB></b>.  This happens because we know that all possible warping paths from <b>0</b> to <b>i</b> in <b>X</b> and from <b>0</b> to <b>j</b> in <b>Y</b> must end by matching <code>i</code> to <code>j</code> (the boundary condition), so we pay a cost of <b>d<SUB>i, j</SUB></b> for that pair.  Furthermore, by the monotonicity and continuity conditions, we know the pair before <code>[i, j]</code> has to have moved by either 1 or 0 along both indices, so we consider the optimal costs of all three possible sub-alignments that could have happened directly before aligning the last pair <code>[i, j]</code>.
+										</p>
+
+										<p>
+											All that remains is the base case / stopping condition.  We know by the first boundary condition that <b>x<SUB>0</SUB></b> needs to match to <b>y<SUB>0</SUB></b>, so 
+										</p>
+
+										<h3>
+											\[ S[0, 0] = d_{0, 0} \]
+										</h3>
+
+										<p>
+											To fill in the rest of the table, we can simply loop along row by row and fill in each element in the row one at at time, looking back at <code>[i-1, j], [i, j-1]</code> and <code>[i-1, j-1]</code>, just as we did for the edit distance dynamic programming solution.
+										</p>
+
+										<p>
+											In addition to filling in the dynamic programming table <b>S</b>, we can store another 2D array <b>choices</b> which stores which direction out of <code>[i-1, j], [i, j-1]</code> and <code>[i-1, j-1]</code> led to the optimal cost at each step, and we can then backtrace from the bottom right of the table to the upper left.
+										</p>
+										
+
+										<h3><a name = "audioalignment">Audio Alignment</a></h3>
+										<p>
+											So far, we've described dynamic time warping (DTW) as a procedure for aligning spatial time series in 2D.  However, it was originally conceived as a means to align audio (Sakoe and Chiba, 1970, <a href = "https://irit.fr/~Julien.Pinquier/Docs/TP_MABS/res/dtw-sakoe-chiba78.pdf">Sakoe and Chiba,  1978</a>).  Surprisingly, there is a way to think of audio as a spatial trajectory in high dimensions.  The idea is to summarize little chunks of audio using different statistics, and each statistic ends up being a dimension.  As a simple example in 2D, one could consider loudness as a dimension along the x-axis and pitch as another dimension along the y-axis.  As the music evolves, the loudness and pitch will change, and the music will trace out a curve.
+										</p>
+										<p>
+											For a more involved example with other audio statistics, <a href = "http://www.covers1000.net/LoopDitty/">click here</a> to view an interactive animation I made, which I call "Loop Ditty."  You won't have to worry about how this actually works in this assignment; the spatial trajectory corresponding to audio will be generated for you, and you will be able to align audio of similar things being played at different rates using general purpose dynamic time warping code you develop.
+										</p>
+
+										
+
+										<h2><a name = "drawing">Programming Task 1: Drawing All Possible Warping Paths (10 Points)</a></h2>
+
+										<p>
+											Even though there is a huge number of warping paths as the size of the inputs scale, it is still interesting to examine what all possible warping paths look like for smaller enough <b>M</b> and <b>N</b>.  Your task in this section will be to plot all possible warping paths for a particular <b>M</b> and <b>N</b> using recursion.  For example, here's where <b>M = 4, N = 4</b>
+										</p>
+
+										<img src = "Delannoy/4x4.gif">
+
+										<p>
+											And here's an example of <b>M = 3, N = 5</b>
+										</p>
+
+										<img src = "Delannoy/3x5.gif">
+
+										<p>
+											Fill in the method <code>plot_all_warppaths</code> to do this.  The code already has the stopping condition built in for when a path reaches <code>[M-1, N-1]</code>, and it will save a plot to your computer as an image for every complete path it finds.
+										</p>
+										<p>
+											All paths start off with <code>[0, 0]</code>.  You should use recursive calls to branch off and consider the possible continuous steps <code>[+0, +1], [+1, +0], [+1, +1]</code> to the next pair in the warping path.  You may want to refer to the <a href = "https://ursinus-cs371-s2021.github.io/Modules/Module11/Video1">recursive backtracing code for edit distance</a>, which used a stack to help branch off for a bunch of paths.  The code here isn't exactly the same, but using push and pop to push on the next element before a recursive call and to pop it off before the next recursive call is the way to go.  Note that you can use a python list as a stack; the <code>push</code> method is <code>append</code> for a list, but <code>pop</code> is still <code>pop</code>.
+										</p>
+
+										<p>
+											The image below shows some pseudocode and a picture depicting how the recursion branches out and grows different paths.  Here <code>enumerate</code> is short for <code>plot_all_warppaths</code>.  The overlapping subproblems are quite visible even after only two branches, which is part of what motivates a dynamic programming solution.
+										</p>
+
+										<p>
+											<img src = "Recursion.svg" width=900>
+										</p>
+
+										<p>
+											<b>NOTE: </b> You may get the paths in a different order from the animation above, but as long as they are all unique and you have a number of paths equal to the respective <a href = "#delannoy">Delannoy number</a>, you're good to go.  You should also check several examples beyond the ones I've shown above and verify that you get the right number of paths.
+										</p>
+
+
+											
+
+										<h2><a name = "dtwprogramming">Programming Task 2: Dynamic Time Warping (15 Points)</a></h2>
+
+										<p>
+											Now you are ready to implement dynamic time warping.  You will start by implementing the dynamic time warping algorithm described in the background to compute an optimal warping path between a sequence of points <b>X</b> and a sequence of points <b>Y</b>.  Fill in the method <code>dtw</code> to accomplish this.  Once this is finished, you can test out the Usain Bolt example from above:
+										</p>
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											from dtw import *
+											X = np.array([[0, 2], [17, 0], [25, 0], [31, 0]])
+											Y = np.array([[0, 4], [5, 4], [16, 4], [24, 4], [30, 4]])
+											path = dtw(X, Y)
+											print(path)]]></script> 
+										<p>
+											If this works, you should get the optimal solution
+										</p>
+										
+										<p>
+											<code>[[0, 0], [0, 1], [1, 2], [2, 3], [3, 4]]</code>
+										</p>
+
+										<p>
+											Here are some implementation details to help you.  If <b>X</b> has <b>M</b> points and <b>Y</b> has <b>N</b> points, then you should fill in an <b>M x N</b> dynamic programming table called <code>S</code>, which is a 2D array that has been initialized for you in the code.  As you're filling in <code>S</code>, you can use the provided method <code>dist_euclidean</code> to compute the distance between a point in X and a point in Y.  In particular, the line 
+										</p>
+											
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											dist_euclidean(X, Y, i, j)
+											]]></script>
+
+										<p>	
+											will compute the distance between the <b>i<SUP>th</SUP></b> point in <b>X</b> and the <b>j<SUP>th</SUP></b> point in <b>Y</b>.  Before you go any further, you should check to make sure the lower right element of your <code>S</code> array is 19.8 in the Usain Bolt example.
+										</p>
+										<p>
+											Once you feel you have the table right, you should add code to remember the optimal choices you made so you can trace back to extract the optimal warping path.  <b>For the purposes of this assignment, it's fine to break ties arbitrarily if there happen to be multiple warping paths that achieve the optimal cost.</b>   So your solution should be similar to how the <a href = "https://ursinus-cs371-s2021.github.io/Modules/Module11/Video0">iterative backtracing</a> was done in edit distance, using a while loop.  When you are finished, You should return the warping path expressed as a list.  <b>Be sure to return a path that starts at <code>[0, 0]</code> and ends at <code>[M-1, N-1]</code></b>, not the other way around.  As in the edit distance example, you may find that the <code>reverse</code> method of python lists comes in handy.
+										</p>
+
+										
+
+										<p>
+											Below is a slightly more intricate example that you can test before moving onto audio.  It matches two sets of point samples on Figure 8 curves in 2D which go at different rates around the Figure 8:
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											import numpy as np
+											import matplotlib.pyplot as plt
+											from dtw import *
+											N = 50
+											t = np.linspace(0, 1, N)
+											X = np.zeros((N, 2))
+											X[:, 0] = np.cos(2*np.pi*t)
+											X[:, 1] = np.sin(4*np.pi*t)
+											Y = np.zeros((N, 2))
+											Y[:, 0] = 1.3*np.cos(2*np.pi*(t**2))
+											Y[:, 1] = 1.3*np.sin(4*np.pi*(t**2))+0.1
+											path = np.array(dtw(X, Y))
+											plt.figure(figsize=(10, 5))
+											plt.subplot(121)
+											plt.plot(X[:, 0], X[:, 1], c='C0')
+											plt.scatter(X[:, 0], X[:, 1], c='C0')
+											plt.plot(Y[:, 0], Y[:, 1], c='C1')
+											plt.scatter(Y[:, 0], Y[:, 1], c='C1')
+											for [i, j] in path:
+												plt.plot([X[i, 0], Y[j, 0]], [X[i, 1], Y[j, 1]], color='k')
+											plt.subplot(122)
+											plt.plot(path[:, 1], path[:, 0])
+											plt.title("Warping Path")
+											plt.ylabel("Blue Curve")
+											plt.xlabel("Orange Curve")
+											plt.gca().invert_yaxis()]]></script> 
+
+										<p>
+											If this works properly, you should get a result like the following, where you see the points are well-matched even though the two Figure 8s have been warped in time:
+										</p>
+										<p>
+											<img src = "Figure8.svg">
+										</p>
+
+										<p>
+											But we can go beyond these synthetic examples in 2D and test on some real audio, which we detail below:
+										</p>
+
+
+										<h3>Audio Example: The Gettysburg Address</h3>
+										<p>
+											Consider the following two audio clips of people reading the beginning of the <a href = "http://www.abrahamlincolnonline.org/lincoln/speeches/gettysburg.htm">Gettysburg address</a>
+										</p>
+
+										<p>
+											<audio controls>
+												<source src="gettysburg1.mp3" type="audio/mpeg">
+											  Your browser does not support the audio element.
+											</audio> 
+										</p>
+
+										and 
+
+										<p>
+											<audio controls>
+												<source src="gettysburg2.mp3" type="audio/mpeg">
+											  Your browser does not support the audio element.
+											</audio> 
+										</p>
+										
+
+										<p>
+											If we line them up, they are completely out of sync
+										</p>
+
+										<p>
+											<audio controls>
+												<source src="Examples/gettysburg_unsync.mp3" type="audio/mpeg">
+											  Your browser does not support the audio element.
+											</audio> 
+										</p>
+
+										<p>
+											But we can align them by using DTW.  First, we turn them into a spatial trajectory using the provided method <code>get_mfcc_mod</code>, and then we can pass them on just like any other sets of points on a path:
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											import numpy as np
+											import matplotlib.pyplot as plt
+											import librosa
+											import time
+											from dtw import *
+											from alignmenttools import *
+											from audiotools import *
+											import time
+											sr = 22050
+											hop_length = 512
+											x1, sr = librosa.load("gettysburg1.wav", sr=sr)
+											x2, sr = librosa.load("gettysburg2.wav", sr=sr)
+											X1 = get_mfcc_mod(x1, sr, hop_length, 20, 0)
+											X2 = get_mfcc_mod(x2, sr, hop_length, 20, 0)
+											tic = time.time()
+											path = dtw(X1, X2)
+											toc = time.time()
+											print("Elapsed Time DTW: {:.3f} seconds".format(toc-tic))
+											xres = stretch_audio(x1, x2, sr, path, hop_length)
+											save_audio("gettysburg1_2.wav", xres, sr)
+											]]></script> 
+
+										<p>
+											This takes about 8 seconds on my computer and comes up with the following output (one in each ear):
+										</p>
+
+										<p>
+											<audio controls>
+												<source src="Examples/gettysburg1_2.mp3" type="audio/mpeg">
+											  Your browser does not support the audio element.
+											</audio> 
+										</p>
+
+										<p>
+											If instead we flip the two audio clips, we get the following result
+										</p>
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											import numpy as np
+											import matplotlib.pyplot as plt
+											import librosa
+											import time
+											from dtw import *
+											from alignmenttools import *
+											from audiotools import *
+											sr = 22050
+											hop_length = 512
+											x1, sr = librosa.load("gettysburg1.wav", sr=sr)
+											x2, sr = librosa.load("gettysburg2.wav", sr=sr)
+											X1 = get_mfcc_mod(x1, sr, hop_length, 20, 0)
+											X2 = get_mfcc_mod(x2, sr, hop_length, 20, 0)
+											tic = time.time()
+											path = dtw(X2, X1)
+											toc = time.time()
+											print("Elapsed Time DTW: {:.3f} seconds".format(toc-tic))
+											xres = stretch_audio(x2, x1, sr, path, hop_length)
+											save_audio("gettysburg2_1.wav", xres, sr)
+											]]></script> 
+
+										<p>
+											This takes about 8 seconds on my computer and comes up with the following output:
+										</p>
+
+										<p>
+											<audio controls>
+												<source src="Examples/gettysburg2_1.mp3" type="audio/mpeg">
+											  Your browser does not support the audio element.
+											</audio> 
+										</p>
+
+										<p>
+											<a name = "jupyter">NOTE:</a> Some students have reported that the .wav files the above code saves do not play under Windows.  You can instead run the above code from within a Jupyter notebook and then type
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											import IPython.display as ipd
+											ipd.Audio([xres[:, 0], xres[:, 1]], rate=sr)]]></script> 
+
+										<p>
+											And that should pop up with an audio widget that you can play.  Be sure you've opened jupyter in the directory where your code is.
+										</p>
+
+										<p>
+											<i>Alternatively, Windows users can download <a href = "https://www.videolan.org/vlc/index.html">VLC Media Player</a></i> 
+										</p>
+
+
+										<h2><a name = "fastdtw">Programming Task 3: FastDTW (20 Points Total)</a></h2>
+
+										<h3><a name = "bgfastdtw">Overview</a></h3>
+
+										<p>
+											If <b>X</b> has <b>M</b> points and <b>Y</b> has <b>N</b> points, the above algorithm takes
+											
+											\[ O(MN) \]
+											
+											space and time.  As far as the time complexity goes, this is certainly <b>much</b> better than a brute force check through all 
+												\[ O \left( \frac{ (3 + 2 \sqrt{2})^{N}}{\sqrt{N}} \right) \]
+											paths, but this still does not scale very well.  Let's say we want to align two performances of Vivaldi's Spring, each of which is about 220 seconds long.  The audio below puts one of these pieces in one ear and the other piece in the other ear, and, as you can hear, they are quite out of sync:
+										</p>
+
+										<p>
+											<audio controls>
+												<source src="Examples/vivaldi_unsync.mp3" type="audio/mpeg">
+											  Your browser does not support the audio element.
+											</audio> 
+										</p>
+
+										<p>
+											If it took 8 seconds to align two clips which were 20 seconds long, then it will take 
+										</p>
+
+										\[ 8*(220/20)^2 =  968 \]
+
+										<p>
+											seconds to align (~16 minutes), which is much longer than the length of each individual clip.  And it only gets worse from there.  If we have two audio clips which are 1000 seconds (about 17 minutes), they will take nearly 6 hours to align at this rate.  
+											
+										</p>
+										
+										<p>
+										Aside from the time, the <b>O(MN)</b> memory also starts to become prohibitive as we scale up.  For 17 minutes of of audio using the parameters above and 4-byte floating point numbers, the dynamic programming table alone takes up nearly 7GB.  
+										
+										
+										</p>
+										<p>
+											
+											Clearly, we need a better solution to be practical for longer audio clips.  For this, we turn to an <b>O(M+N)</b> algorithm in both time and space that has been dubbed "FastDTW."  This algorithm is an <b>approximation algorithm</b>, which means it is not guaranteed to give the optimal warping path, but in practice, it still gives good results.  It was first described in <a href = "http://kochanski.org/gpk/misc/papers_that_shouldnt_be_lost/2001/tdm04.pdf">a 2004 paper by Stan Salvador and Philip Chan</a>, and it was also described in the context of music in <a href = "https://www.audiolabs-erlangen.de/content/05-fau/professor/00-mueller/03-publications/2006_MuellerMattesKurth_MultiscaleAudioSynchronization_ISMIR.pdf">a 2006 paper by M&#252;ller, Mattes, and Kurth</a>.  This is an instance of what's known as a <b>multiresolution algorithm</b>.  What we do is solve a coarser version of the problem and then use that solution to constrain our search for finer problems, eventually solving the one at the finest scale that we want.
+										</p>
+										<p>
+											The example below shows the <code>S</code> matrix and the constrained warping paths at different levels on the Gettysburg address example.  In this example, <b>M = 863, N = 603</b>.  In FastDTW, we keep halving the number of points in <b>X</b> and <b>Y</b> 5 times until we get down to a problem of size <b>M = 26, N = 18</b>.  At this point, we perform full on DTW on this small problem, which is very fast, to extract a coarse warping path.  We then use the coarse path to help us solve the problem at a scale of <b>M = 53, N=37</b>, searching only through warping paths which fall within a particular <b>radius</b> of the coarse path.  We then use the warping path we find at this scale to constrain the warping path at the next larger scale <b>M = 107, N=75</b> in a similar way, and we keep doing this until we get up to the original scale.  The images below depict this.  As you can see, we're able to ignore tons of cells once we get to the finer scales, because the boxes we put around the constraint warping path are so small compared to the size of the dynamic programming matrix
+										</p>
+
+										<table>
+											<tr>
+												<td><img src = "FastDTW_Gettysburg/4.png"></td>
+												<td><img src = "FastDTW_Gettysburg/3.png"></td>
+												<td><img src = "FastDTW_Gettysburg/2.png"></td>
+											</tr>
+											<tr>
+												<td><img src = "FastDTW_Gettysburg/1.png"></td>
+												<td><img src = "FastDTW_Gettysburg/0.png"></td>
+											</tr>
+										</table>
+
+										<p>
+											Once you finish the <code>fastdtw</code> method, the code to run this is as follows
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											import numpy as np
+											import matplotlib.pyplot as plt
+											import librosa
+											import time
+											from dtw import *
+											from alignmenttools import *
+											from audiotools import *
+											sr = 22050
+											hop_length = 512
+											x1, sr = librosa.load("gettysburg1.wav", sr=sr)
+											x2, sr = librosa.load("gettysburg2.wav", sr=sr)
+											X1 = get_mfcc_mod(x1, sr, hop_length, 20, 0)
+											X2 = get_mfcc_mod(x2, sr, hop_length, 20, 0)
+											tic = time.time()
+											path = fastdtw(X2, X1, 20, do_plot=True)
+											toc = time.time()
+											print("Elapsed Time Fast DTW: {:.3f} seconds".format(toc-tic))
+											xres = stretch_audio(x2, x1, sr, path, hop_length)
+											save_audio("gettysburg2_1.wav", xres, sr)
+											]]></script> 
+
+										<p>
+											This takes about 5 seconds on my computer and comes up with the following output:
+										</p>
+
+										<p>
+											<audio controls>
+												<source src="Examples/gettysburg2_1_fastdtw.mp3" type="audio/mpeg">
+											  Your browser does not support the audio element.
+											</audio> 
+										</p>
+
+										<p>
+											In this case, the output is exactly the same as with the regular quadratic algorithm, though this is not guaranteed.
+										</p>
+
+										<p>
+											Below we describe the recursive algorithm in more detail.
+										</p>
+
+									<h3><a name = "algfastdtw">Recursive Algorithm Specification</a></h3>
+
+									<p>
+										Given a time series <b>X</b> with <b>M</b> points, a time series <b>Y</b> with <b>N</b> points, and a whole number <b>radius</b>, we refer to the time series at level <b>L</b> as <b>X<SUB>L</SUB></b> and <b>Y<SUB>L</SUB></b>, which have a size of 
+										
+										<h3>
+											\[ M_L = \lfloor M/2^L \rfloor, N_L = \lfloor N/2^L \rfloor \]
+										</h3>
+										
+										, respectively.  We can construct the warping path <b>P<SUB>L</SUB></b> at level <b>L</b> as follows:
+									</p>
+
+									<ol>
+										<li>
+											Downsample <b>X<SUB>L</SUB></b> and <b>Y<SUB>L</SUB></b> by a factor of 2 to create <b>X<SUB>L+1</SUB></b>and <b>Y<SUB>L+1</SUB></b> of length <b>M<SUB>L+1</SUB></b> and <b>N<SUB>L+1</SUB></b>, respectively.
+										</li>
+										<li>
+											If <b>M<SUB>L+1</SUB></b> or <b>N<SUB>L+1</SUB></b> is less than <b>radius</b>, this is the stopping condition; the problems are small enough to simply perform regular DTW on them.  Otherwise, recursively compute a warping path <b>P<SUB>L+1</SUB></b> between <b>X<SUB>L+1</SUB></b> and <b>Y<SUB>L+1</SUB></b> using FastDTW, and continue to the next step.
+										</li>
+										<li>
+											<p>
+												Create an <b>occupancy mask</b> on <b>P</b> which constrains the warping path at level <b>L</b>.  This is a 2D array of size <b>M<SUB>L</SUB> x N<SUB>L</SUB></b> that has a 1 at an element if we need to fill in that element in the dynamic programming table, and a 0 otherwise (it can be assumed to be infinity).  To construct this mask, for each coordinate <code>[i, j]</code> in <b>P</b>, set all elements in a square of length <b>2*radius+1</b> around <code>[2i, 2j]</code> to be 1; that is, set all elements in the box
+												
+												<h3>
+													\[ [i-radius, i+radius] \times  [j-radius, j+radius] \]
+												</h3>
+												
+												to 1 if they aren't already.  The picture below depicts the process of constructing this occupancy mask
+											</p>
+											<p>
+												<img src = "WarpMask.svg" width=350>
+											</p>
+											<p>
+												Any cell that is not touched by a box can be completely skipped, and doesn't even have to be stored in memory!  This is what leads to efficiency in both time and space.
+											</p>
+										</li>
+										<li>
+											Compute the dynamic programming array <code>S</code> and the array of optimal choices at all locations that are 1s in the occupancy mask, and ignore all others (they are assumed to be infinity in <code>S</code>).
+										</li>
+										<li>
+											Backtrace the array of choices to extract the optimal warping path <code>P<SUB>L</SUB></code>, subject to the constraints in the occupancy matrix.
+										</li>
+									</ol>
+
+									<h3><a name = "occupancy">Programming Task: Construct Occupancy Mask (5 Points)</a></h3>
+									<p>
+										As your first task, you should fill in code to compute an occupancy mask.  We will be using a special data structure known as a <a href = "https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.lil_matrix.html">sparse matrix</a> to efficiently store it.  A sparse matrix efficiently represents a table with many zeros, as it only stores the nonzero elements in memory.  Anything that is not stored is implied to be 0.
+									</p>
+										
+									<p>
+										Once a sparse matrix has been initialized, you can basically just think of it like a 2D array, but there is one important syntactic caveat.  In particular, for our occupancy sparse array <code>Occ</code>, we access an element with <code>Occ[i, j]</code>.  The syntax <code>Occ[i][j]</code> <b>will not work</b> for sparse matrices.
+									</p>
+
+									<p>
+										Fill in the code <code>create_mask</code> to fill in a sparse occupancy mask <code>Occ</code> for a particular path.  For each <code>[i, j]</code> in <code>path</code>, you should set all of the elements of <code>Occ</code> in a square of length <b>2*radius+1</b> around the location <code>[2*i, 2*j]</code> to be 1.  As a hint, the easiest way to do this is to assign to a 2D slice for each point using numpy <a href = "https://numpy.org/doc/stable/user/basics.broadcasting.html">broadcasting</a>.  For example, if I say
+									</p>
+
+									<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+										Occ[10:21, 30:41] = 1
+										]]></script> 
+
+									That is equivalent to saying
+									<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+										for i in range(10, 21):
+											for j in range(30, 41):
+												Occ[i, j] = 1
+										]]></script> 
+									
+									<p>
+										Both of these lines of code set an 11x11 box of values to 1, but the first one is more concise and efficient in python.
+									</p>
+
+									<p>
+										Below are a couple of simple tests you can run to see if your code is working properly.  Be careful not to go out of bounds!
+									</p>
+
+									<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+										path = []
+										for i in range(20):
+											path.append([i, i])
+										Occ = create_mask(40, 40, path, 5)
+										plt.imshow(Occ.toarray())]]></script> 
+									
+									<p>
+										which should output the following image
+									</p>
+
+									<p>
+										<img src = "Occ1.svg">
+									</p>
+
+									<p>
+										and the following code
+									</p>
+
+									<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+										path = []
+										for i in range(20):
+											path.append([i, 0])
+										for j in range(20):
+											path.append([19, j])
+										Occ = create_mask(40, 40, path, 5)
+										plt.imshow(Occ.toarray())]]></script> 
+									
+									<p>
+										which should output the following image
+									</p>
+
+									<p>
+										<img src = "Occ2.svg">
+									</p>
+
+									<h4><a name = "occcomplexity">A Note on Complexity</a></h4>
+									<p>
+										If <b>P</b> is the length of your path, then your code should run in <b>O(P)</b> time.  So do not loop through every element in the grid and check to see if it's in the array.  Instead, loop through each element in the path and draw a square around it in turn, as shown in the animation below:
+									</p>
+
+									<p>
+										<img src = "OccAnim.gif">
+									</p>
+
+									<h3><a name = "fastdtwimp">Programming Task: Implement Recursive Algorithm (15 Points)</a></h3>
+									<p>
+										Once you've computed the occupancy grid, you have all of the pieces you need to implement the recursive algorithm.  Here's what you need to do 
+
+										<ol>
+											<li>
+												Make a recursive call to fastdtw to get a warping path from <b>X<SUB>L+1</SUB></b>and <b>Y<SUB>L+1</SUB></b>
+											</li>
+											<li>
+												Use this path to create a mask <code>Occ</code> using your <code>create_mask</code> method.  Then, extract a list of the indices from this mask in the order they should be visited to fill in the dynamic programming table.  You can use the provided <code>get_mask_indices_inorder</code> to do this.
+											</li>
+											<li>
+												Loop through all of the indices in the order they are returned from <code>get_mask_indices_inorder</code>, and compute the dynamic programming matrix <code>S</code>, as well as the choices matrix, both which are sparse matrices.   Be very careful that if you're looking at a neighbor of <code>S[i, j]</code> which is not actually a 1 in the occupancy matrix, <b>it is assumed
+												to be infinity, not 0</b>.  In other words, a neighbor should never be considered as an option if it is not a 1 in <code>Occ</code>, so be sure to ignore it if it's a 0 in <code>Occ</code>.
+											</li>
+											<li>
+												Backtrace through the choices to extract the optimal warping path and store this in the <code>path</code> list
+											</li>
+										</ol>
+
+										Steps 3 and 4 should be very similar to regular DTW.  The only difference is in that in step 3, you're being very careful to only consider neighboring elements which are a 1 in <code>Occ</code>.
+									</p>
+
+									<p>
+										If you believe this is working properly, you should test the Gettysburg address again using <a href = "#bgfastdtw">the code above</a>.  The code will output the <code>S</code> matrices and scaled warping paths at each level as images to your hard drive to help with debugging.
+									</p>
+									
+									<p>
+										For a lengthier example, you can try Vivaldi's spring with the following code:
+									</p>
+
+
+									<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+										sr = 22050
+										hop_length = 512
+										x1, sr = librosa.load("vivaldi1.wav", sr=sr)
+										x2, sr = librosa.load("vivaldi2.wav", sr=sr)
+										X1 = get_mfcc_mod(x1, sr, hop_length, 120, 20)
+										X2 = get_mfcc_mod(x2, sr, hop_length, 120, 20)
+										tic = time.time()
+										path = fastdtw(X1, X2, 20, do_plot=True)
+										toc = time.time()
+										print("Elapsed Time Fast DTW: {:.3f} seconds".format(toc-tic))
+										xres = stretch_audio(x1, x2, sr, path, hop_length)
+										save_audio("vivaldi1_2.wav", xres, sr)]]></script> 
+
+										<p>
+											This takes about 80 seconds on my computer, and it comes up with the following audio
+										</p>
+										<p>
+											<audio controls>
+												<source src="Examples/vivaldi1_2.mp3" type="audio/mpeg">
+											  Your browser does not support the audio element.
+											</audio> 
+										</p>
+                                    
+                                </div>
+						</div>
+					</div>
+
+					<!--LaTeX in Javascript!-->
+					<script src="../../../../jsMath/easy/load.js"></script>
+					<!--Syntax highlighting in Javascript!-->
+					<script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shCore.js"></script>
+					<script type="text/javascript" src="../../../syntaxhighlighter/scripts/shBrushJScript.js"></script>
+                    <script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shBrushCpp.js"></script>
+					<script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shBrushXml.js"></script>
+					<script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shBrushMatlabSimple.js"></script>
+					<script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shBrushPython.js"></script>
+					<link type="text/css" rel="stylesheet" href="../../../../syntaxhighlighter/styles/shCoreDefault.css"/>
+					<script type="text/javascript">SyntaxHighlighter.all();</script>
+
+<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+                                        <li>
+											<span class="opener">General</span>
+											<ul> 
+												<li><a href = "../../index.html#overview">Overview</a></li>
+												<li><a href = "../../index.html#logistics">Technology Logistics</a></li>
+												<li><a href = "../../index.html#deliverables">Deliverables</a></li>
+												<li><a href = "../../index.html#grading">Grading</a></li>
+												<li><a href = "../../index.html#environment">Classroom Environment</a></li>
+												<li><a href = "../../index.html#participation">Participation</a></li>
+												<li><a href = "../../index.html#collaboration">Collaboration Policy</a></li>
+												<li><a href = "../../index.html#other">Other Resources / Policies</a></li>
+											</ul>
+										</li>
+										<li><a href = "../../Software/index.html">Software</a></li>
+										<li><a href = "../../Schedule/index.html">Schedule</a></li>
+                                        <li>
+											<span class="opener">Assignments</span>
+											<ul>
+												<li><a href = "../../Assignments/HW1_PlantCellSegmentation">HW1: Union Find And Plant Cell Segmentation</a></li>
+												<li><a href = "../../Assignments/HW2_Autocomplete">HW2: Complexity Proofs And Autocomplete</a></li>
+												<li><a href = "../../Assignments/HW3_DTW_AudioAlignment">HW3: Audio Alignment with Dynamic Time Warping</a></li>
+												<li><a href = "../../Assignments/HW4_FairElections">HW4: Fair Elections of Superheros</a></li>
+												<li><a href = "../../Assignments/HW5_PhylogeneticTrees">HW5: Phylogenetic Trees</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/HW6/Exercise0">HW6: The Rush Hour Game</a></li>
+											</ul>
+										</li>
+                                        <li>
+											<span class="opener">Pre-Class Modules</span>
+											<ul>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module0/Part1">Module 0: Warmup</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module1/Video1">Module 1: Python Basics</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module2/Video1">Module 2: Numpy, Matplotlib, Python Classes</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module3/Video1.html">Module 3: Disjoint Set Data Structures</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module4/Video1.html">Module 4: Analytical Time Complexity And Big O</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module5/Video0.html">Module 5: Little-o And Python Linked Lists</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module6/Video1">Module 6: The List Data Structure And Amortized Cost</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module7/Video1">Module 7: Amortized Cost Proof, Binary Search</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module8/Exercise0">Module 8: Binary Search Implementation, Sets/Maps</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module9/Exercise0">Module 9: Sierpinski Triangle, Stacks/Queues Review, Towers of Hanoi</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module10/Video0">Module 10: Proofs by Induction, Memoization, String Edit Distance</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module11/Video0">Module 11: String Edit Distance Backtracing Solutions, Making Change</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module12/Exercise0">Module 12: Seam Carving</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module13/Video1">Module 13: Longest Common Subsequence</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module14/Video1">Module 14: Intro To Sorting</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module15/Video0">Module 15: Recursive Sorts And Sorting Theory</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module16/Video1">Module 16: Radix Sort, Fisher-Yates Shuffling</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module17/Video1">Module 17: Intro To Binary Trees, Preorder/Inorder/Postorder</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module18/Video1">Module 18: Binary Search Trees: Contains/Addition/Removal</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module19/Video1">Module 19: Huffman Trees</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module20/Video1">Module 20: Heaps And Dijkstra's</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module21/Video1.html">Module 21: Minimum Spanning Trees</a></li>
+											</ul>
+										</li>
+                                        <li>
+											<span class="opener">Class Exercises</span>
+											<ul>
+												<li><a href = "../../ClassExercises/Week1/rushhour-master/">Week 1: Rush Hour Icebreaker</a></li>
+												<li><a href = "../../ClassExercises/Week2/Week2_UnionFind/">Week 2: Union Find</a></li>
+												<li><a href = "../../ClassExercises/Week3/Week3_BigO/">Week 3: Big O Practice</a></li>
+												<li><a href = "../../ClassExercises/Week3/Week3_LinkedLists/">Week 3: Linked Lists</a></li>
+												<li><a href = "../../ClassExercises/Week3/Week3_DoublyLinkedLists/">Week 3: Doubly-Linked Lists</a></li>
+												<li><a href = "../../ClassExercises/Week4/Week4_HashingExperiments/">Week 4: Hashing Experiments</a></li>
+												<li><a href = "../../ClassExercises/Week4/Week4_MovieReviews/">Week 4: Movie Reviews</a></li>
+												<li><a href = "../../ClassExercises/Week5/Week5_RecursiveEvaluation/">Week 5: Recursive Evaluation</a></li>
+												<li><a href = "../../ClassExercises/Week5/Week5_RecursiveDrawing/">Week 5: Recursive Drawing</a></li>
+												<li><a href = "../../ClassExercises/Week5/Week5_TowersOfHanoi/">Week 5: Towers of Hanoi</a></li>
+												<li><a href = "../../ClassExercises/Week6/Week6_EditBacktracing">Week 6: Edit Distance Backtracing</a></li>
+												<li><a href = "../../ClassExercises/Week6/Week6_SeamCarving">Week 6: Seam Carving</a></li>
+												<li><a href = "../../ClassExercises/Week8/Week8_LCS">Week 8: Longest Common Subsequence</a></li>
+												<li><a href = "../../ClassExercises/Week8/Week8_Sorting">Week 8: Sorting</a></li>
+												<li><a href = "../../ClassExercises/Week9/Week9_RecursiveSorts">Week 9: Recursive Sorts</a></li>
+												<li><a href = "../../ClassExercises/Week9/Week9_RadixSort">Week 9: Radix Sort</a></li>
+												<li><a href = "../../ClassExercises/Week10/Week10_TreeDrawing">Week 10: Tree Drawing</a></li>
+												<li><a href = "../../ClassExercises/Week11/Week11_BSTComplexity">Week 11: Tree Balancing via Rotations</a></li>
+											</ul>
+										</li>
+										<li>
+											<span class="opener">Final Assessment</span>
+											<ul>
+												<li><a href = "../../final.html#codinginterview">Mock Coding Interview</a></li>
+												<li><a href = "../../final.html#multimediaexpo">Geometric Algorithm Multimedia Expo</a></li>
+											</ul>
+										</li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<div class="mini-posts">
+										Announcements							
+                                    </div>
+								</section>
+
+
+							<!-- Footer -->
+								<footer id="footer">
+									<p class="copyright">&copy; <a href = "http://www.ctralie.com">Christopher J. Tralie</a>. All rights reserved.  Contact chris.tralie@gmail.com. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+			
+            <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+            <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<!-- End Sidebar !-->
+
+<!-- Scripts -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/skel.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="../../assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="../../assets/js/main.js"></script>
+<!-- End Scripts -->
+	</body>
