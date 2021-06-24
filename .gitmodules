@@ -13,3 +13,12 @@
 [submodule "Assignments/HW5_PhylogeneticTrees/HW5_PhylogeneticTrees"]
 	path = Assignments/HW5_PhylogeneticTrees/HW5_PhylogeneticTrees
 	url = https://github.com/Ursinus-CS371-S2021/HW5_PhylogeneticTrees.git
+[submodule "ClassExercises/AlgorithmsDemos"]
+	path = ClassExercises/AlgorithmsDemos
+	url = https://github.com/ctralie/AlgorithmsDemos.git
+[submodule "ClassExercises/Week1/rushhour"]
+	path = ClassExercises/Week1/rushhour
+	url = https://github.com/Ursinus-CS371-S2021/rushhour.git
+[submodule "ClassExercises/Week1/Week1_Friday"]
+	path = ClassExercises/Week1/Week1_Friday
+	url = https://github.com/Ursinus-CS371-S2021/Week1_Friday.git
