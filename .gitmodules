@@ -7,3 +7,9 @@
 [submodule "Assignments/HW3_DTW_AudioAlignment/HW3_DTW_AudioAlignment"]
 	path = Assignments/HW3_DTW_AudioAlignment/HW3_DTW_AudioAlignment
 	url = https://github.com/Ursinus-CS371-S2021/HW3_DTW_AudioAlignment.git
+[submodule "Assignments/HW4_FairElections/HW4_FairElections"]
+	path = Assignments/HW4_FairElections/HW4_FairElections
+	url = https://github.com/Ursinus-CS371-S2021/HW4_FairElections.git
+[submodule "Assignments/HW5_PhylogeneticTrees/HW5_PhylogeneticTrees"]
+	path = Assignments/HW5_PhylogeneticTrees/HW5_PhylogeneticTrees
+	url = https://github.com/Ursinus-CS371-S2021/HW5_PhylogeneticTrees.git
