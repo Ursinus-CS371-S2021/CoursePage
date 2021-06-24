@@ -22,3 +22,6 @@
 [submodule "ClassExercises/Week1/Week1_Friday"]
 	path = ClassExercises/Week1/Week1_Friday
 	url = https://github.com/Ursinus-CS371-S2021/Week1_Friday.git
+[submodule "ClassExercises/Week4/Week4_HashingExperiments/Week4_HashingExperiments"]
+	path = ClassExercises/Week4/Week4_HashingExperiments/Week4_HashingExperiments
+	url = https://github.com/Ursinus-CS371-S2021/Week4_HashingExperiments.git
