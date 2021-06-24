@@ -25,3 +25,9 @@
 [submodule "ClassExercises/Week4/Week4_HashingExperiments/Week4_HashingExperiments"]
 	path = ClassExercises/Week4/Week4_HashingExperiments/Week4_HashingExperiments
 	url = https://github.com/Ursinus-CS371-S2021/Week4_HashingExperiments.git
+[submodule "ClassExercises/Week4/Week4_MovieReviews/Week4_MovieReviews"]
+	path = ClassExercises/Week4/Week4_MovieReviews/Week4_MovieReviews
+	url = https://github.com/Ursinus-CS371-S2021/Week4_MovieReviews.git
+[submodule "ClassExercises/Week5/Week5_TowersOfHanoi/Week5_TowersOfHanoi"]
+	path = ClassExercises/Week5/Week5_TowersOfHanoi/Week5_TowersOfHanoi
+	url = https://github.com/Ursinus-CS371-S2021/Week5_TowersOfHanoi.git
