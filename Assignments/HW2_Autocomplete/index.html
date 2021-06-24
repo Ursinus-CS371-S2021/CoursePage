@@ -1,0 +1,513 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<!-- Header !-->
+	<head>
+		<title>Ursinus CS 371: Data Structures And Algorithms, Spring 2021</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<!--[if lte IE 8]><script src="../../assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="../../assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="../../assets/css/ie8.css" /><![endif]-->
+        <style>
+        .image_off, #home:hover .image_on{
+           display:none
+        }
+        .image_on, #home:hover .image_off{
+           display:block
+        }
+        </style>
+	</head>
+	<body>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="../../index.html" class="logo"><strong>Ursinus CS 371: Data Structures And Algorithms, Spring 2021</strong></a>
+								</header>
+<!-- End Header !-->
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+                                        <h2>Assignment 2: Complexity Proofs And Autocomplete (40 Points)</h2>
+                                        <h3><a href = "http://www.ctralie.com">Chris Tralie</a>, heavily inspired from <a href = "https://www.cs.princeton.edu/courses/archive/spring20/cos226/assignments/autocomplete/specification.php">Princeton COS 226</a></h3>
+										<h3>Due Thursday 2/25/2021</h3>
+									</header>
+
+									<div id="page-content">
+										<ul>
+											<li>
+												<a href = "#overview">Overview/Logistics</a>
+												<ul>
+													<li><a href = "#learning">Learning Objectives</a></li>
+													<li><a href = "#submit">What To Submit</a></li>
+												</ul>
+											</li>
+											<li>
+												<a href = "#proofs">Part 1: Proofs</a>
+												<ul>
+													<li><a href = "#doublehalflist">Doubling / Halving ArrayList (8 Points)</a></li>
+													<li><a href = "#avglinkedlist">Average Complexity of Search in A Linked List (7 Points)</a></li>
+												</ul>
+											</li>
+											<li>
+												<a href = "#background">Part 2: Autocomplete: Background</a>
+											</li>
+											<li><a href = "#programming">Part 2: Autocomplete Programming Tasks</a>
+												<ul>
+													<li><a href = "#indexof">Part 1: First And Last Index (15 Points)</a></li>
+													<li><a href = "#autocompletelist">Part 2: Autocomplete List (5 Points)</a></li>
+													<li><a href = "#performance">Part 3: Empirical Performance (5 Points)</a></li>
+												</ul>
+											</li>
+										</ul>
+
+                                        <h2><a name = "overview">Overview / Logistics</a></h2>
+										<p>
+											The purpose of this assignment is to give you practice implementing efficient algorithms in python in the service of a cool application: autocompletion of text.  You will ensure that your algorithms meet a particularly efficiency expressed in big-O notation.  You will warm up for all of this by completing two proofs about efficiency of manipulating elements in different types of lists.
+										
+										</p>
+
+										<p>
+											<a href = "https://github.com/Ursinus-CS371-S2021/HW2_Autocomplete/archive/main.zip">Click here</a> to download the starter code for this assignment.  You will be editing <code>autocomplete.py</code>
+										</p>
+										
+
+                                        <p>
+                                            <h3><a name = "learning">Learning Objectives</a></h3>
+                                            <ul>
+												<li>
+													Apply Big-O proof techniques to establish the amortized cost and average complexity of algorithms.
+												</li>
+												<li>Implement comparators to sort items in a custom way.</li>
+												<li>Use binary search to efficiently find a range of items in an ordered list.</li>
+                                            </ul>
+                                        </p>
+
+										<h3><a name = "submit">What To Submit</a></h3>
+
+										<p>                                  
+											Please submit your file <code>autocomplete.py</code> to canvas, as well as your proofs either as pictures or a word/pdf document.  Please also submit answers to the following questions on Canvas
+										
+										<ol>
+											<li>
+												The name of your <a href = "../../index.html#buddy">buddy</a>, if you chose to work with one.
+											</li>
+											<li>
+												Approximately how many hours it took you to finish this assignment (<i>I will not judge you for this at all...I am simply using it to gauge if the assignments are too easy or hard</i>)
+											</li>
+											<li>
+												Your overall impression of the assignment. Did you love it, hate it, or were you neutral? One word answers are fine, but if you have any suggestions for the future let me know.
+											</li>
+											<li>
+												Any other concerns that you have. For instance, if you have a bug that you were unable to solve but you made progress, write that here. The more you articulate the problem the more partial credit you will receive (fine to leave this blank)
+											</li>
+										</ol>
+
+										<h2><a name = "proofs">Part 1: Proofs</a></h2>
+										<p>
+											In this section, you will prove a few propositions about lists, using what you know about <a href = "https://ursinus-cs371-s2021.github.io/Modules/Module4/Video3.html">Big-O</a> notation and <a href = "https://ursinus-cs371-s2021.github.io/Modules/Module6/Video1">amortized cost</a>. Please write these proofs up in a word processor, or hand write them neatly and take a picture to submit to canvas.
+										</p>
+
+										<h3><a name = "doublehalflist">Doubling / Halving ArrayList (8 Points)</a></h3>
+										<p>
+											We saw in <a href = "https://ursinus-cs371-s2021.github.io/Modules/Module6/Video1">module 6</a> that one implementation of an ArrayList uses an array as an underlying data structure which doubles every time it reaches capacity.  We then proved <a href = "https://ursinus-cs371-s2021.github.io/Modules/Module7/Video1">in module 7</a> that even though this doubling is expensive, that the amortized cost of a sequence of adds is <b>O(1)</b>.  
+										</p>
+
+										<p>
+											The drawback of this technique from a practical perspective is if we remove a bunch of elements, we suddenly have way more space than we need.  So one might choose to modify that algorithm so that the moment fewer than half of the available space is used, the capacity halves.  This certainly improves the space usage, but we unfortunately lose the <b>O(1)</b> guarantee for the amortized cost of a sequence of adds and removes.  <b>Describe a sequence of <b>some constant times N operations</b>, which is some combination of adds and removes, and prove that this sequence has a total cost of O(N<SUP>2</SUP>).  Conclude that the amortized cost of this sequence of adds and removes is O(N)</b>.  This is enough to show that our new technique fails to be amortized <b>O(1)</b> for all sequences, breaking our worst case guarantee.
+										</p>
+
+										<p>
+											In your proof, you should describe a sequence of operations and their cost.  For example, 
+											<ul>
+												<li>Step 0: Start with an array with <b>N</b> elements and a capacity of <b>N</b></li>
+												<li>Step 1: Add an element, which takes some constant <b>a</b> times <b>N</b> steps, since I have to double the capacity.  I now have a capacity of <b>2N</b> for <b>N+1</b> elements</li>
+												<li>Step 2: Add an element, which takes some constant <b>b</b> time, since I don't have to touch the capacity.  I am left with <b>N+2</b> elements in a capacity of <b>2N</b></li>
+												<li>...</li>
+												<li>Step N: ???</li>
+											</ul>
+											You can organize this into a table to make it look nice if you'd like.  Then, you just need to total up the cost
+										</p>
+											
+											
+										<p>
+											<b>Hint:</b> Try to get a sequence of halving and doubling to alternate in rapid succession.  You can assume that if you don't have to double or halve, adding or removing is constant time.  But if you do have to double or halve an array that has N elements, then it takes O(N) time to do that.  (We already established this in modules 6 and 7, so you can take this as a given).  Your proof should start by establishing an initial number of elements and capacity, and it should proceed by describing step by step adds or removes and the cost of each.
+										</p>
+
+										<p>
+											<b>Can you think of a modified scheme that would free memory when needed but which might have better theoretical amortized runtime?</b>.  I won't grade this part for correctness, but I want to hear your thoughts because we're going to discuss something soon that is the best of both worlds for space and time, so I will grade it for completeness.
+										</p>
+										
+										<h3><a name = "avglinkedlist">Average Complexity of Search in A Linked List (7 Points)</a></h3>
+										<p>
+											We know that the worst case time complexity of searching for an element of a linked list with <b>N</b> elements is <b>O(N)</b>, since the element could show up at the end of the list.  Prove that the average case is <b>&#1012;(N)</b> ("big theta of N"); that is, assuming that it costs a constant <b>a</b> to walk a single step in the linked list and that <b>T(N)</b> is the average time to access any element in the list, prove both that <b>T(N)</b> is <b>O(N)</b> and <b>T(N)</b> is <b>&#937;(N)</b> ("big Omega of N," which is the opposite of big O of N)
+										</p>
+
+
+										<p>
+											To prove that <b>T(N)</b> is <b>O(N)</b>, you must find a constant <b>c</b> and a constant <b>n<SUB>c</SUB></b> so that 
+
+											\[ T(N) \leq c N \text{ when } N > n_c \]
+										</p>
+
+										<p>
+											To prove that <b>T(N)</b> is <b>&#937;(N)</b>, you must find a constant <b>c</b> and a constant <b>n<SUB>c</SUB></b> so that 
+
+											\[ T(N) \geq c N \text{ when } N > n_c \]
+										</p>
+
+										<h4>Hint</h4>
+										<p>
+											Consider a linked list with 5 elements, as below
+										</p>
+										<img src = "LinkedList.svg">
+										<p>
+											To understand the average cost of finding an element, we need to look at the sum of the costs of finding all elements.  In the above example, each search takes the following number of steps:
+										</p>
+										<ul>
+											<li>
+												chris: 1 (at the head already)</li>
+											<li>
+												celia: 2 (one step past the head)
+											</li>
+											<li>
+												theo: 3
+											</li>
+											<li>
+												layla: 4
+											</li>
+											<li>
+												james: 5
+											</li>
+										</ul>
+
+										<p>
+											The total over all of these is (1+2+3+4+5) = 15.  Get the average by dividing by the number of possible elements, which is 5.  15/5 = 3, therefore the average cost over all possible searches is 3.  See if you can extend this to an arbitrary number of elements <b>N</b>, with the help of the formula below:
+										</p>
+
+										<p>
+
+											<h3>
+												\[ 1 + 2 + 3 + ... + N = \frac{N(N+1)}{2} \]
+											</h3>
+
+											
+										</p>
+
+										
+
+										<h2><a name = "background">Part 2: Autocomplete: Background</a></h2>
+
+										<p>
+											Most of the interfaces we use in modern computing contain huge databases of text that can be used to predict what we're trying to type from just a few characters, as shown below:
+										</p>
+
+										<table>
+											<tr>
+												<td>
+													<img src = "autocomplete1.png">
+												</td>
+												<td>
+													<img src = "autocomplete2.png">
+												</td>
+											</tr>
+										</table>
+
+										<p>
+											The process is referred to as <b>autocomplete</b>.  The query string is referred to as a <b>prefix</b>, and the word used to complete it is referred to as a <b>term</b>.  For example, in the above Google search, a query prefix of "ursi" has an autocompletion of "ursinus college" (ignoring case).  The possibilities should be sorted from most likely to least likely given some likelihood.  For instance, some phones adapt by counting how many times people type a certain word and showing the most typed words first.  In this assignment, since we lack such prior knowledge, we will simply be sorting in descending order by the number of times a word shows up, as counted by the <a href = "https://ai.googleblog.com/2006/08/all-our-n-gram-are-belong-to-you.html">google trillion word corpus</a>.
+										</p>
+
+										<p>
+											In order for autocomplete to be practical, it has to be very efficient, not only because the databases of possibilities are often huge (the main one you'll be using in this assignment has 333,333 words), but because this has to be repeated over and over again as a person types and fills in more characters to the prefix.
+										</p>
+
+										<p>
+											In this assignment, you will implement an efficient version of autocomplete using binary search.  We will see later in the course how to implement an even more efficient version of autocomplete using a data structure known as a <b>trie</b>, but for now, binary search on a sorted list will be quite a good, practical solution.
+										</p>
+
+                                        
+										<h2><a name = "programming">Part 2: Autocomplete Programming Tasks</a></h2>
+
+										<p>
+											You will be writing the bulk of your code in the class <code>Autocomplete</code> within <code>autocomplete.py</code>.  The constructor accepts a string which is a path to a file containing a list of terms with a measure of their "importance."  The first term database file you can use is <a href = "HW2_Autocomplete/words.txt">words.txt</a>, which contains the 1/3 million most frequently used English words based off of the <a href = "https://ai.googleblog.com/2006/08/all-our-n-gram-are-belong-to-you.html">google trillion word corpus</a>, where "importance" is measured by the number of times that word was used.  For example, "ursinus" is used 178,097 times, while "ursula" is used 976,724, so ursula would show up first for a prefix of "urs."  There is also a file "cities.txt" that you can play with, where the "importance" of a particular city is measured by its population.
+										</p>
+
+										<p>
+											The terms are stored as a list of 2-element <a href = "https://www.geeksforgeeks.org/tuples-in-python/">python tuples</a>, where the first tuple element is the string and the second tuple element is its count.  A tuple in python is simply an <i>immutable</i> list, meaning that it can't be modified after it's created, but all of the syntax for accessing its elements is the same as that of a list.  The only syntactical difference is that a tuple is denoted by parentheses instead of square brackets.  For instance,
+										</p>
+										
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											term = ("ursinus", 178097)
+											print(term[1])]]></script> 
+
+										<p>
+											would print out <code>178097</code>.  The terms are sorted in alphabetical order by specifying that the tuples should be sorted by their first element, with the following syntax:
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											self._terms = sorted(self._terms, key=lambda term: term[0])]]></script>
+											
+										<p>
+											You will use similar syntax later to sort the results of a query prefix in descending order of their count.
+										</p>
+
+										<p>
+											Finally, note that you can compare strings in alphabetical order with <code>&lt</code>, <code>&gt</code>, and <code>==</code>.  For instance
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											print("philadelphia" < "washington dc")</script>
+										
+										<p>
+											would print <code>True</code>, since "philadelphia" comes before "washington dc" alphabetically.
+										</p>
+										
+
+
+										<h3><a name = "indexof">Part 1: First And Last Index (15 Points)</a></h3>
+										<p>
+											Assuming <code>self._terms</code> has been sorted in alphabetical order, fill in the <code>_first_index_of</code> and <code>_last_index_of</code> internal helper methods to return the first or last indices of the terms that contain a particular prefix.  For instance, the code 
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											a = Autocomplete("words.txt")
+											print(a._first_index_of("urs"), a._last_index_of("urs"))</script>
+										
+										<p>
+											should print <code>308595 308618</code>, which makes sense since there are 333,333 words, and "urs" is towards the end of the alphabet.  These indices also imply that there are 308618 - 308595 + 1 = 24 words total in the database that start with "urs".  <b>Your methods should each run in O(log(N)) time</b>, where <b>N</b> is the number of terms in the database.  Since, as we saw in <a href = "https://ursinus-cs371-s2021.github.io/Modules/Module8/Exercise0">module 8</a> there are many pitfalls with infinite loops with binary search, you may wish to test some of your code on sorted lists with repeat numbers first (like the ones in that module) to make sure it's working properly, and then ensure it also works with words.
+										</p>
+
+										<h3><a name = "autocompletelist">Part 2: Autocomplete List (5 Points)</a></h3>
+										<p>
+											Fill in the method <code>all_matches</code>, which should return a list of <b>m</b> matching terms from the database, <b>sorted in descending order of importance</b> (the second term in the tuple).  The total time complexity of this method should be <b>O(log(N) + m log(m))</b>.  You should use the python method <code>sorted</code>, as in the constructor, and this will have a complexity of <b>O(m log(m))</b> for this step.
+										</p>
+
+										<p>
+											As an example, suppose you run the following code to query the database with the word "at":
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											a = Autocomplete("words.txt")
+											matches = a.all_matches("at")
+											print(len(matches), "total matches")
+											print("Top 10:")
+											for i in range(10):
+												print(i+1, ":", matches[i])</script>
+										
+										<p>
+											It should then print out the following
+										</p>
+										
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											901 total matches
+											Top 10:
+											1 : ('at', 2272272772)
+											2 : ('attention', 44752502)
+											3 : ('attorney', 38778191)
+											4 : ('attack', 35599513)
+											5 : ('atom', 32776867)
+											6 : ('atlanta', 32440124)
+											7 : ('attempt', 25251906)
+											8 : ('atlantic', 23920018)
+											9 : ('attractions', 23129051)
+											10 : ('attached', 23079894)
+											</script>
+										
+										<p>
+											For an example with the <code>cities.txt</code> database, suppose we query the city "College"
+										</p>
+
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											a = Autocomplete("cities.txt")
+											matches = a.all_matches("College")
+											print(len(matches), "total matches")
+											for i, match in enumerate(matches):
+												print(i+1, ":", match)</script>
+										
+										<p>
+											It should then print out the following
+										</p>
+										
+										<script type="syntaxhighlighter" class="brush: py"><![CDATA[
+											8 total matches
+											1 : ('College Station, Texas, United States', 93857)
+											2 : ('College Park, Maryland, United States', 30413)
+											3 : ('College Park, Georgia, United States', 13942)
+											4 : ('College, Alaska, United States', 12964)
+											5 : ('College Place, Washington, United States', 8765)
+											6 : ('Collegedale, Tennessee, United States', 8282)
+											7 : ('Collegeville, Pennsylvania, United States', 5089)
+											8 : ('Collegeville, Minnesota, United States', 3516)
+
+											</script>
+										
+										<p>
+											We are one of only two Collegevilles in the world, and the other one has a slightly lower population!
+										</p>
+
+										<h3><a name = "performance">Part 3: Empirical Performance (5 Points)</a></h3>
+										<p>
+											If you've implemented binary search properly, then the loop (or recursion, depending how you implemented it) should not execute more than <b>ceil(log<SUB>2</SUB>(N))+1</b> times for <b>N</b> terms in the database.  Create a list member variable that stores the number of repetitions of the loop or recursion that happen in <code>_first_index_of</code> and <code>_last_index_of</code> for every query, and perform a bunch of random queries.  Then, plot a histogram of that list with the <code>plt.hist(listname)</code> command and be sure that none of the counts exceed <b>ceil(log<SUB>2</SUB>(N)+1)</b>.
+										</p>
+
+										<p>
+											NOTE: In the list of 333,333 words, <b>ceil(log<SUB>2</SUB>(N)+1) = 20</b>.  There is a strong analogy with the <a href = "https://en.wikipedia.org/wiki/20Q">20 questions game</a>, where someone asks 20 yes or no questions and is able to narrow down pretty much any noun from that.
+										</p>
+
+
+                                    
+                                </div>
+						</div>
+					</div>
+
+					<!--LaTeX in Javascript!-->
+					<script src="../../../../jsMath/easy/load.js"></script>
+					<!--Syntax highlighting in Javascript!-->
+					<script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shCore.js"></script>
+					<script type="text/javascript" src="../../../syntaxhighlighter/scripts/shBrushJScript.js"></script>
+                    <script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shBrushCpp.js"></script>
+					<script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shBrushXml.js"></script>
+					<script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shBrushMatlabSimple.js"></script>
+					<script type="text/javascript" src="../../../../syntaxhighlighter/scripts/shBrushPython.js"></script>
+					<link type="text/css" rel="stylesheet" href="../../../../syntaxhighlighter/styles/shCoreDefault.css"/>
+					<script type="text/javascript">SyntaxHighlighter.all();</script>
+
+<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+									<ul>
+                                        <li>
+											<span class="opener">General</span>
+											<ul> 
+												<li><a href = "../../index.html#overview">Overview</a></li>
+												<li><a href = "../../index.html#logistics">Technology Logistics</a></li>
+												<li><a href = "../../index.html#deliverables">Deliverables</a></li>
+												<li><a href = "../../index.html#grading">Grading</a></li>
+												<li><a href = "../../index.html#environment">Classroom Environment</a></li>
+												<li><a href = "../../index.html#participation">Participation</a></li>
+												<li><a href = "../../index.html#collaboration">Collaboration Policy</a></li>
+												<li><a href = "../../index.html#other">Other Resources / Policies</a></li>
+											</ul>
+										</li>
+										<li><a href = "../../Software/index.html">Software</a></li>
+										<li><a href = "../../Schedule/index.html">Schedule</a></li>
+                                        <li>
+											<span class="opener">Assignments</span>
+											<ul>
+												<li><a href = "../../Assignments/HW1_PlantCellSegmentation">HW1: Union Find And Plant Cell Segmentation</a></li>
+												<li><a href = "../../Assignments/HW2_Autocomplete">HW2: Complexity Proofs And Autocomplete</a></li>
+												<li><a href = "../../Assignments/HW3_DTW_AudioAlignment">HW3: Audio Alignment with Dynamic Time Warping</a></li>
+												<li><a href = "../../Assignments/HW4_FairElections">HW4: Fair Elections of Superheros</a></li>
+												<li><a href = "../../Assignments/HW5_PhylogeneticTrees">HW5: Phylogenetic Trees</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/HW6/Exercise0">HW6: The Rush Hour Game</a></li>
+											</ul>
+										</li>
+                                        <li>
+											<span class="opener">Pre-Class Modules</span>
+											<ul>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module0/Part1">Module 0: Warmup</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module1/Video1">Module 1: Python Basics</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module2/Video1">Module 2: Numpy, Matplotlib, Python Classes</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module3/Video1.html">Module 3: Disjoint Set Data Structures</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module4/Video1.html">Module 4: Analytical Time Complexity And Big O</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module5/Video0.html">Module 5: Little-o And Python Linked Lists</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module6/Video1">Module 6: The List Data Structure And Amortized Cost</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module7/Video1">Module 7: Amortized Cost Proof, Binary Search</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module8/Exercise0">Module 8: Binary Search Implementation, Sets/Maps</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module9/Exercise0">Module 9: Sierpinski Triangle, Stacks/Queues Review, Towers of Hanoi</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module10/Video0">Module 10: Proofs by Induction, Memoization, String Edit Distance</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module11/Video0">Module 11: String Edit Distance Backtracing Solutions, Making Change</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module12/Exercise0">Module 12: Seam Carving</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module13/Video1">Module 13: Longest Common Subsequence</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module14/Video1">Module 14: Intro To Sorting</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module15/Video0">Module 15: Recursive Sorts And Sorting Theory</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module16/Video1">Module 16: Radix Sort, Fisher-Yates Shuffling</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module17/Video1">Module 17: Intro To Binary Trees, Preorder/Inorder/Postorder</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module18/Video1">Module 18: Binary Search Trees: Contains/Addition/Removal</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module19/Video1">Module 19: Huffman Trees</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module20/Video1">Module 20: Heaps And Dijkstra's</a></li>
+												<li><a href = "https://ursinus-cs371-s2021.github.io/Modules/Module21/Video1.html">Module 21: Minimum Spanning Trees</a></li>
+											</ul>
+										</li>
+                                        <li>
+											<span class="opener">Class Exercises</span>
+											<ul>
+												<li><a href = "../../ClassExercises/Week1/rushhour-master/">Week 1: Rush Hour Icebreaker</a></li>
+												<li><a href = "../../ClassExercises/Week2/Week2_UnionFind/">Week 2: Union Find</a></li>
+												<li><a href = "../../ClassExercises/Week3/Week3_BigO/">Week 3: Big O Practice</a></li>
+												<li><a href = "../../ClassExercises/Week3/Week3_LinkedLists/">Week 3: Linked Lists</a></li>
+												<li><a href = "../../ClassExercises/Week3/Week3_DoublyLinkedLists/">Week 3: Doubly-Linked Lists</a></li>
+												<li><a href = "../../ClassExercises/Week4/Week4_HashingExperiments/">Week 4: Hashing Experiments</a></li>
+												<li><a href = "../../ClassExercises/Week4/Week4_MovieReviews/">Week 4: Movie Reviews</a></li>
+												<li><a href = "../../ClassExercises/Week5/Week5_RecursiveEvaluation/">Week 5: Recursive Evaluation</a></li>
+												<li><a href = "../../ClassExercises/Week5/Week5_RecursiveDrawing/">Week 5: Recursive Drawing</a></li>
+												<li><a href = "../../ClassExercises/Week5/Week5_TowersOfHanoi/">Week 5: Towers of Hanoi</a></li>
+												<li><a href = "../../ClassExercises/Week6/Week6_EditBacktracing">Week 6: Edit Distance Backtracing</a></li>
+												<li><a href = "../../ClassExercises/Week6/Week6_SeamCarving">Week 6: Seam Carving</a></li>
+												<li><a href = "../../ClassExercises/Week8/Week8_LCS">Week 8: Longest Common Subsequence</a></li>
+												<li><a href = "../../ClassExercises/Week8/Week8_Sorting">Week 8: Sorting</a></li>
+												<li><a href = "../../ClassExercises/Week9/Week9_RecursiveSorts">Week 9: Recursive Sorts</a></li>
+												<li><a href = "../../ClassExercises/Week9/Week9_RadixSort">Week 9: Radix Sort</a></li>
+												<li><a href = "../../ClassExercises/Week10/Week10_TreeDrawing">Week 10: Tree Drawing</a></li>
+												<li><a href = "../../ClassExercises/Week11/Week11_BSTComplexity">Week 11: Tree Balancing via Rotations</a></li>
+											</ul>
+										</li>
+										<li>
+											<span class="opener">Final Assessment</span>
+											<ul>
+												<li><a href = "../../final.html#codinginterview">Mock Coding Interview</a></li>
+												<li><a href = "../../final.html#multimediaexpo">Geometric Algorithm Multimedia Expo</a></li>
+											</ul>
+										</li>
+									</ul>
+								</nav>
+
+							<!-- Section -->
+								<section>
+									<div class="mini-posts">
+										Announcements							
+                                    </div>
+								</section>
+
+
+							<!-- Footer -->
+								<footer id="footer">
+									<p class="copyright">&copy; <a href = "http://www.ctralie.com">Christopher J. Tralie</a>. All rights reserved.  Contact chris.tralie@gmail.com. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+						</div>
+					</div>
+
+			</div>
+			
+            <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+            <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<!-- End Sidebar !-->
+
+<!-- Scripts -->
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/skel.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="../../assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="../../assets/js/main.js"></script>
+<!-- End Scripts -->
+	</body>

@@ -1,0 +1,6 @@
+[submodule "Assignments/HW1_PlantCellSegmentation/HW1_PlantCellSegmentation"]
+	path = Assignments/HW1_PlantCellSegmentation/HW1_PlantCellSegmentation
+	url = https://github.com/Ursinus-CS371-S2021/HW1_PlantCellSegmentation.git
+[submodule "Assignments/HW2_Autocomplete/HW2_Autocomplete"]
+	path = Assignments/HW2_Autocomplete/HW2_Autocomplete
+	url = https://github.com/Ursinus-CS371-S2021/HW2_Autocomplete.git
