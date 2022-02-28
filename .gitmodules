@@ -34,9 +34,6 @@
 [submodule "ClassExercises/Week6/Week6_EditBacktracing/Week6_EditBacktracing"]
 	path = ClassExercises/Week6/Week6_EditBacktracing/Week6_EditBacktracing
 	url = https://github.com/Ursinus-CS371-S2021/Week6_EditBacktracing.git
-[submodule "ClassExercises/Week6/Week6_SeamCarving/Week6_SeamCarving"]
-	path = ClassExercises/Week6/Week6_SeamCarving/Week6_SeamCarving
-	url = https://github.com/Ursinus-CS371-S2021/Week6_SeamCarving.git
 [submodule "ClassExercises/Week9/Week9_RadixSort/Week9_RadixSort"]
 	path = ClassExercises/Week9/Week9_RadixSort/Week9_RadixSort
 	url = https://github.com/Ursinus-CS371-S2021/Week9_RadixSort.git
